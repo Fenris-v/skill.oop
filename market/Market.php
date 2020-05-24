@@ -18,40 +18,39 @@ class Order
 
     public function getBasket()
     {
-        return  "для вас создан заказ, на сумму: " . number_format($this->getPrice(), 0, '', ' ') . " руб. Состав:<br/>" . $this->basket->describe();
+        return $this->basket;
     }
 
     public function getPrice()
     {
-        $basket = $this->basket;
-        return $basket->getPrice($basket);
+        return $this->basket->getPrice();
     }
 }
 
 class Basket
 {
-    public $basket;
+    public $products;
 
     public function __construct($products = [])
     {
         if (isset($products[0]) && is_array(
                 $products[0]
             ) && isset($products[0]['product']) && isset($products[0]['quantity'])) {
-            $this->basket = $products;
+            $this->products = $products;
         } elseif (isset($products['product']) && isset($products['quantity'])) {
-            $this->basket[] = $products;
+            $this->products[] = $products;
         }
     }
 
     public function addProduct(Product $product, $quantity)
     {
-        $this->basket[] = ['product' => $product, 'quantity' => $quantity];
+        $this->products[] = ['product' => $product, 'quantity' => $quantity];
     }
 
-    public function getPrice($basket)
+    public function getPrice()
     {
         $sum = 0;
-        foreach ($this->basket as $item) {
+        foreach ($this->products as $item) {
             $sum += (int)$item['quantity'] * $item['product']->getPrice($item['product']);
         }
         return $sum;
@@ -60,16 +59,12 @@ class Basket
     public function describe()
     {
         $basket = '';
-        if (isset($this->basket[0]) && isset($this->basket[0]['product'])) {
-            foreach ($this->basket as $item) {
+        if (isset($this->products[0]) && isset($this->products[0]['product'])) {
+            foreach ($this->products as $item) {
                 $basket .= $item['product']->getName() . " — " .
                     number_format($item['product']->getPrice(), 0, '', ' ') .
                     " руб. — " . $item['quantity'] . "<br/>";
             }
-        } elseif (isset($this->basket['product'])) {
-            $basket .= $this->basket['product']->getName() . " — " .
-                number_format($this->basket['product']->getPrice(), 0, '', ' ') .
-                " руб. — " . $this->basket['quantity'] . "<br/>";
         }
         return $basket;
     }
@@ -97,7 +92,7 @@ class Product
     }
 }
 
-echo '<a href="/">Вернуться на главную</a><br /><br />';
+echo '<hr /><a href="/">Вернуться на главную</a><br /><br />';
 
 $product = new Product('TV', 50000);
 $product1 = new Product('PC', 90000);
@@ -114,4 +109,7 @@ $order = new Order($basket);
 
 $user = new User('Николай Николаича', 'nn@gmail.com');
 
-$user->notifyOnEmail($order->getBasket());
+$user->notifyOnEmail(
+    "для вас создан заказ, на сумму: " . number_format($order->getPrice(), 0, '', ' ')
+    . " руб. Состав:<br/>" . $order->getBasket()->describe()
+);

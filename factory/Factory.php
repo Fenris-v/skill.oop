@@ -4,13 +4,6 @@ namespace App\Factory;
 
 class ToyFactory
 {
-    public $counter;
-
-    public function __construct($num = 0)
-    {
-        $this->counter = $num;
-    }
-
     public function createToy($name)
     {
         return new Toy($name, rand(100, 10000));
@@ -34,7 +27,7 @@ echo '<a href="/">Вернуться на главную</a><br /><br />';
 $countToys = rand(5, 20);
 $toys = [];
 for ($i = 0; $i < $countToys; $i++) {
-    $factory = new ToyFactory;
+    $factory = new ToyFactory();
     $names = ['Солдатик', 'Машинка', 'Кукла', 'Конструктор', 'Пазл'];
     shuffle($names);
     $toys[] = $factory->createToy($names[0]);
